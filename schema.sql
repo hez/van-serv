@@ -1,6 +1,6 @@
 DROP TABLE remote_devices;
 CREATE TABLE remote_devices (
-    id INTEGER,
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     type VARCHAR(128),
     name VARCHAR(128),
     read_device INTEGER,

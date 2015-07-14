@@ -1,3 +1,4 @@
+
 <div id="container">
   <div id="remote-data">
   </div>
@@ -6,5 +7,9 @@
 <script type="text/javascript">
 $(function() {
   app.appView = new app.AppView();
+  setInterval(function(){
+    console.log("polling");
+    app.remote_data_list.fetch();
+  }, 1000);
 });
 </script>

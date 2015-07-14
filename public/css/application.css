@@ -1,0 +1,12 @@
+body {
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+.remote-data {
+  padding: 5px;
+}
+
+.remote-data label {
+  display: inline;
+}
