@@ -1,0 +1,12 @@
+<div class="row">
+  <h2>Edit Remote Device</h2>
+</div>
+
+<form method="post" action="/remote_device/<%= @remote_device.id %>">
+  <input type="hidden" name="_method" value="put" />
+  <%= erb :"remote_devices/_form", locals: {remote_device: @remote_device} %>
+
+  <div class="row">
+    <input type="submit" value="Update" class="button" />
+  <div>
+</form>

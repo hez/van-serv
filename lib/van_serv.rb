@@ -1,23 +1,21 @@
-require "rubygems"
+require "./config/bootstrap"
+
 require "sinatra/base"
+require "sinatra/namespace"
+require "sinatra/reloader"
+require "sinatra/json"
 require "tilt/erb"
-require "active_record"
 require "singleton"
 require "i2c/i2c"
+
+# Models
+require "knob"
+require "sensor"
 
 ActiveRecord::Base.establish_connection(
   :adapter => 'sqlite3',
   :database =>  'sinatra_application.sqlite3.db'
 )
-
-class RemoteDevice < ActiveRecord::Base
-  def exportable
-    {id: id, name: name, address: read_address, device: read_device}
-  end
-end
-
-class Knob < RemoteDevice
-end
 
 module PackingHelpers
   def high_low_unpack(values = [0x00, 0x00])
@@ -52,11 +50,11 @@ class DataSource
         break unless more_data
       end
     end
-    puts ret.inspect
     ret
   end
 
   def start_thread
+    puts 'starting thread'
     fetch_thread.run
   end
 
@@ -74,11 +72,13 @@ class DataSource
       begin
         while true do
           ActiveRecord::Base.connection_pool.with_connection do
-            device_addresses = RemoteDevice.uniq(:read_device).pluck(:read_device)
+            device_addresses = RemoteDevice.uniq(:device).pluck(:device)
             new_values = data_source.fetch(device_addresses)
             new_values.each do |update_vals|
-              RemoteDevice.where(read_device: update_vals[:device], read_address: update_vals[:address]).
-                update_all(value: update_vals[:value])
+              RemoteDevice.where(device: update_vals[:device], address: update_vals[:address]).each do |remote_device|
+                remote_device.value = update_vals[:value]
+                remote_device.save
+              end
             end
           end
           sleep 0.5
@@ -87,47 +87,95 @@ class DataSource
         puts $!
         puts $!.backtrace
       end
+      puts 'thread done'
     end
   end
 end
 
 class VanServ < Sinatra::Base
+  register Sinatra::Namespace
+
+  configure :development do
+    register Sinatra::Reloader
+  end
+
   configure do
     DataSource.instance.start_thread
+    enable :method_override
     set :server, :thin
     set :views, [ "./views" ]
     set :public_folder, "public"
   end
 
   get "/" do
-    @lights = get_updated_ligths
+    @remote_devices = RemoteDevice.all
+    puts @remote_devices.inspect
     erb :index
   end
 
   get "/devices" do
     @devices = `sudo i2cdetect -y 1`
-    puts @devices.inspect
     erb :devices
   end
 
-  get "/api/remote_data" do
-    remote_devices = RemoteDevice.all.collect {|i| i.exportable }
-    remote_devices.to_json
-  end
-
-  get "/api/remote_data/:id" do
-    remote_device = RemoteDevice.find(params[:id].to_i)
-    remote_device.exportable.to_json
-  end
-
-  def get_updated_ligths
-    device_addresses = RemoteDevice.uniq(:read_device).pluck(:read_device)
-    new_values = DataSource.instance.fetch(device_addresses)
-    new_values.each do |update_vals|
-      RemoteDevice.where(read_device: update_vals[:device], read_address: update_vals[:address]).
-        update_all(value: update_vals[:value])
+  namespace "/remote_device" do
+    # Show
+    get "/:id" do
+      @remote_device = RemoteDevice.find(params[:id])
+      erb :"remote_devices/show"
     end
 
-    RemoteDevice.all
+    # New
+    get "/new" do
+      @remote_device = RemoteDevice.new
+      erb :"remote_devices/new"
+    end
+
+    # Create
+    post "/" do
+      device_klass = Kernel.const_get(params[:device_type].capitalize)
+      @remote_device = device_klass.new(params[:remote_device])
+      if @remote_device.save
+        redirect "/remote_device/#{@remote_device.id}"
+      else
+        erb :"remote_devices/new"
+      end
+    end
+
+    # Edit
+    get "/:id/edit" do
+      @remote_device = RemoteDevice.find(params[:id])
+      erb :"remote_devices/edit"
+    end
+
+    # Update
+    put "/:id" do
+      @remote_device = RemoteDevice.find(params[:id])
+      @remote_device.update_attributes(params[:remote_device])
+      if @remote_device.save
+        redirect "/remote_device/#{@remote_device.id}"
+      else
+        erb :"remote_devices/new"
+      end
+    end
+
+    delete "/:id" do
+      @remote_device = RemoteDevice.find(params[:id])
+      @remote_device.delete
+      redirect "/"
+    end
+  end
+
+  namespace "/api" do
+    get "/remote_data" do
+      remote_devices = RemoteDevice.all.collect {|i| i.exportable }
+      json remote_devices
+    end
+
+    get "/remote_data/:id" do
+      remote_device = RemoteDevice.find(params[:id].to_i)
+      puts remote_device.exportable.inspect
+      json remote_device.exportable
+    end
   end
 end

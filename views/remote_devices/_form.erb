@@ -1,0 +1,45 @@
+<div class="row">
+  <div class="large-6 columns">
+    <label>Name
+      <input type="text" name="remote_device[name]" value="<%= remote_device.name %>" />
+    </label>
+  </div>
+
+  <div class="large-6 columns">
+    <label>Device Type
+      <select name="device_type">
+        <% RemoteDevice::TYPES.each do |type| %>
+        <option><%= type %></option>
+        <% end %>
+      </select>
+    </label>
+  </div>
+</div>
+
+<div class="row">
+  <div class="large-6 columns">
+    <label>Device
+      <input type="text" name="remote_device[device]" value="<%= remote_device.device %>" />
+    </label>
+  </div>
+
+  <div class="large-6 columns">
+    <label>Address
+      <input type="text" name="remote_device[address]" value="<%= remote_device.address %>" />
+    </label>
+  </div>
+</div>
+
+<div class="row">
+  <div class="large-6 columns">
+    <label>Max Value
+      <input type="text" name="remote_device[max_value]" value="<%= remote_device.max_value %>" />
+    </label>
+  </div>
+
+  <div class="large-6 columns">
+    <label>Min Value
+      <input type="text" name="remote_device[min_value]" value="<%= remote_device.min_value %>" />
+    </label>
+  </div>
+</div>

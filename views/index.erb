@@ -1,15 +1,10 @@
+<h1>Devices</h1>
 
-<div id="container">
-  <div id="remote-data">
+<% @remote_devices.each do |remote_device| %>
+  <div>
+    <%= erb :"remote_devices/_display_remote_#{remote_device.type.downcase}", locals: {remote_device: remote_device} %>
+    <a href="/remote_device/<%= remote_device.id %>">Show</a>
+    &middot;
+    <a href="/remote_device/<%= remote_device.id %>/edit">Edit</a>
   </div>
-</div>
-
-<script type="text/javascript">
-$(function() {
-  app.appView = new app.AppView();
-  setInterval(function(){
-    console.log("polling");
-    app.remote_data_list.fetch();
-  }, 1000);
-});
-</script>
+<% end %>

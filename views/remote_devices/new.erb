@@ -1,0 +1,11 @@
+<div class="row">
+  <h2>New Remote Device</h2>
+</div>
+
+<form method="post" action="/remote_device/">
+  <%= erb :"remote_devices/_form", locals: {remote_device: @remote_device} %>
+
+  <div class="row">
+    <input type="submit" value="Create" class="button" />
+  <div>
+</form>
