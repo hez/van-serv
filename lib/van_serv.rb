@@ -1,21 +1,8 @@
-require "./config/bootstrap"
-
-require "sinatra/base"
-require "sinatra/namespace"
-require "sinatra/reloader"
-require "sinatra/json"
-require "tilt/erb"
-require "singleton"
-require "i2c/i2c"
-
 # Models
 require "knob"
 require "sensor"
 
-ActiveRecord::Base.establish_connection(
-  :adapter => 'sqlite3',
-  :database =>  'sinatra_application.sqlite3.db'
-)
+# curl -i -X PUT -d "remote_device[value]=10" http://localhost:9292/remote_device/1
 
 module PackingHelpers
   def high_low_unpack(values = [0x00, 0x00])
@@ -36,7 +23,7 @@ class DataSource
   PACKET_SIZE = 4
 
   def initialize
-#@arduino = I2C.create("/dev/i2c-1")
+    #@arduino = I2C.create("/dev/i2c-1")
     @arduino = DummyI2C.new
   end
 
@@ -100,7 +87,7 @@ class VanServ < Sinatra::Base
   end
 
   configure do
-    DataSource.instance.start_thread
+    # DataSource.instance.start_thread
     enable :method_override
     set :server, :thin
     set :views, [ "./views" ]
@@ -119,16 +106,17 @@ class VanServ < Sinatra::Base
   end
 
   namespace "/remote_device" do
-    # Show
-    get "/:id" do
-      @remote_device = RemoteDevice.find(params[:id])
-      erb :"remote_devices/show"
-    end
-
     # New
     get "/new" do
       @remote_device = RemoteDevice.new
       erb :"remote_devices/new"
+    end
+
+    # Show
+    get "/:id" do
+      @remote_device = RemoteDevice.find(params[:id])
+      puts "device: #{@remote_device.inspect}"
+      erb :"remote_devices/show"
     end
 
     # Create
