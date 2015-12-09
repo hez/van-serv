@@ -5,7 +5,5 @@
 <form method="post" action="/remote_device/">
   <%= erb :"remote_devices/_form", locals: {remote_device: @remote_device} %>
 
-  <div class="row">
-    <input type="submit" value="Create" class="button" />
-  <div>
+  <button type="submit" class="btn btn-default">Create</button>
 </form>

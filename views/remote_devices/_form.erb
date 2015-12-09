@@ -1,45 +1,33 @@
-<div class="row">
-  <div class="large-6 columns">
-    <label>Name
-      <input type="text" name="remote_device[name]" value="<%= remote_device.name %>" />
-    </label>
-  </div>
-
-  <div class="large-6 columns">
-    <label>Device Type
-      <select name="device_type">
-        <% RemoteDevice::TYPES.each do |type| %>
-        <option><%= type %></option>
-        <% end %>
-      </select>
-    </label>
-  </div>
+<div class="form-group">
+  <label for="remote_device_name">Name</label>
+  <input class="form-control" id="remote_device_name" type="text" name="remote_device[name]" value="<%= remote_device.name %>" />
 </div>
 
-<div class="row">
-  <div class="large-6 columns">
-    <label>Device
-      <input type="text" name="remote_device[device]" value="<%= remote_device.device %>" />
-    </label>
-  </div>
-
-  <div class="large-6 columns">
-    <label>Address
-      <input type="text" name="remote_device[address]" value="<%= remote_device.address %>" />
-    </label>
-  </div>
+<div class="form-group">
+  <label for="remote_device_type">Device Type</label>
+  <select class="form-control" id="remote_device_type" name="device_type">
+    <% RemoteDevice::TYPES.each do |type| %>
+      <option><%= type %></option>
+    <% end %>
+  </select>
 </div>
 
-<div class="row">
-  <div class="large-6 columns">
-    <label>Max Value
-      <input type="text" name="remote_device[max_value]" value="<%= remote_device.max_value %>" />
-    </label>
-  </div>
+<div class="form-group">
+  <label for="remote_device_device">Device</label>
+  <input class="form-control" id="remote_device_device" type="text" name="remote_device[device]" value="<%= remote_device.device %>" />
+</div>
 
-  <div class="large-6 columns">
-    <label>Min Value
-      <input type="text" name="remote_device[min_value]" value="<%= remote_device.min_value %>" />
-    </label>
-  </div>
+<div class="form-group">
+  <label for="remote_device_address">Address</label>
+  <input class="form-control" id="remote_device_address" type="text" name="remote_device[address]" value="<%= remote_device.address %>" />
+</div>
+
+<div class="form-group">
+  <label for="remote_device_max_value">Max Value</label>
+  <input class="form-control" id="remote_device_max_value" type="text" name="remote_device[max_value]" value="<%= remote_device.max_value %>" />
+</div>
+
+<div class="form-group">
+  <label for="remote_device_min_value">Min Value</label>
+  <input class="form-control" id="remote_device_min_value" type="text" name="remote_device[min_value]" value="<%= remote_device.min_value %>" />
 </div>
