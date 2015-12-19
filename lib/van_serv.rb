@@ -139,8 +139,10 @@ class VanServ < Sinatra::Base
     # Update
     put "/:id" do
       @remote_device = RemoteDevice.find(params[:id])
+      puts "attributes #{params.inspect}"
       @remote_device.update_attributes(params[:remote_device])
       if @remote_device.save
+        puts "device: #{@remote_device.inspect}"
         redirect "/remote_device/#{@remote_device.id}"
       else
         erb :"remote_devices/new"
@@ -158,6 +160,14 @@ class VanServ < Sinatra::Base
     get "/remote_data" do
       remote_devices = RemoteDevice.all.collect {|i| i.exportable }
       json remote_devices
+    end
+
+    post "/remote_data" do
+      remote_data = RemoteDevice.find_by(name: params[:name]) if params[:name].present?
+      if remote_data
+        remote_data.value = params[:value]
+        remote_data.save
+      end
     end
 
     get "/remote_data/:id" do
